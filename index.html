@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generator Syair Arab • AFHIMNA</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Amiri&family=Scheherazade+New&family=Lateef&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0b0f14;
+  --panel:#111827;
+  --border:#1f2937;
+  --fg:#e5e7eb;
+  --accent:#00f2ff;
+  --fontSize:18px;
+  --tableText:#e5e7eb;
+  --tableBait:rgba(255,255,255,.035);
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  padding:20px;
+  background:var(--bg);
+  color:var(--fg);
+  font-family:system-ui,Arial,sans-serif;
+  transition:opacity .6s ease, transform .6s ease;
+}
+
+body.page-reset{
+  opacity:0;
+  transform:translateY(14px);
+}
+
+h1{text-align:center}
+
+.card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:18px;
+  margin-bottom:18px;
+}
+
+label{
+  font-size:13px;
+  opacity:.8;
+  margin-top:14px;
+  display:block;
+}
+
+textarea{
+  width:100%;
+  min-height:120px;
+  margin-top:6px;
+  background:transparent;
+  color:var(--fg);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px;
+  resize:none;
+  font-family:'Amiri',serif;
+  font-size:18px;
+  direction:rtl;
+  unicode-bidi:plaintext;
+  overflow:hidden;
+  transition:.4s ease;
+}
+
+textarea.fade{
+  opacity:0;
+  transform:translateY(-8px);
+}
+
+select{
+  width:100%;
+  margin-top:6px;
+  background:transparent;
+  color:var(--fg);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:10px;
+}
+
+.font-controls{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  margin-top:14px;
+}
+
+.font-btn{
+  width:46px;
+  height:46px;
+  border-radius:14px;
+  border:none;
+  cursor:pointer;
+  background:linear-gradient(145deg,var(--accent),#38bdf8);
+  font-weight:bold;
+}
+.font-btn:active{transform:scale(.92)}
+
+.font-size-chip{
+  padding:6px 14px;
+  border-radius:999px;
+  background:rgba(0,0,0,.2);
+}
+
+.main-btn{
+  width:100%;
+  margin-top:16px;
+  padding:14px;
+  border-radius:14px;
+  border:none;
+  font-weight:bold;
+  cursor:pointer;
+  background:linear-gradient(145deg,var(--accent),#38bdf8);
+}
+
+.output{
+  overflow-x:auto;
+  transition:.5s ease;
+}
+.output.fade{
+  opacity:0;
+  transform:translateY(-10px);
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:var(--fontSize);
+  font-family:'Amiri',serif;
+  color:var(--tableText);
+}
+
+td{
+  padding:3px;
+  direction:rtl;
+  unicode-bidi:plaintext;
+  text-align:justify;
+  text-align-last:justify;
+  padding-right:var(--pr,28px);
+  padding-left:var(--pl,28px);
+}
+
+tr.bait-start td,
+tr.bait-end td{
+  background:var(--tableBait);
+}
+
+@keyframes wave{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:none}
+}
+.wave{animation:wave .6s ease forwards}
+
+
+/* ===== SOWAR / SOCIAL ===== */
+.social-container{
+  margin-top:26px;
+  text-align:center;
+}
+
+.social-container p{
+  font-size:13px;
+  color:#bbb;
+  margin-bottom:14px;
+}
+
+.social-icons{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:24px;
+}
+
+.social-icons a{
+  display:block;
+  outline:none;
+  text-decoration:none;
+}
+
+.social-icon{
+  width:52px;
+  height:52px;
+  padding:6px;
+  border-radius:14px;
+  background:rgba(255,255,255,.03);
+  opacity:.85;
+  transition:.35s ease;
+  display:block; /* FIX GITHUB PAGES */
+}
+
+.social-icon:hover{
+  transform:scale(1.18) translateY(-4px);
+  opacity:1;
+  filter:brightness(1.15);
+}
+
+.social-icon.ig:hover{
+  box-shadow:0 0 12px rgba(225,48,108,.8),0 0 25px rgba(253,29,29,.6);
+}
+.social-icon.wa:hover{
+  box-shadow:0 0 12px rgba(37,211,102,.8),0 0 25px rgba(37,211,102,.6);
+}
+
+.support-text{
+  margin-top:18px;
+  font-size:13px;
+  color:#ccc;
+}
+.support-text a{
+  color:#38bdf8;
+  font-weight:600;
+  text-decoration:none;
+}
+
+.copyright{
+  margin-top:10px;
+  font-size:11px;
+  letter-spacing:.6px;
+  color:rgba(255,255,255,.35);
+}
+</style>
+</head>
+
+<body class="page-reset">
+
+<h1>Generator Syair Arab</h1>
+
+<div class="card">
+  <label>Masukkan teks</label>
+  <textarea id="inputText"></textarea>
+
+  <label>Pilih Font</label>
+  <select id="fontSelect">
+    <option>Amiri</option>
+    <option>Scheherazade New</option>
+    <option>Lateef</option>
+  </select>
+
+  <label>Ukuran Font</label>
+  <div class="font-controls">
+    <button class="font-btn" onclick="fontMinus()">A−</button>
+    <div class="font-size-chip" id="fontSizeVal">18px</div>
+    <button class="font-btn" onclick="fontPlus()">A+</button>
+  </div>
+
+  <label>Skema Warna Tabel</label>
+  <select id="colorSelect">
+    <option value="default">Default AFHIMNA</option>
+    <option value="white">White Manuscript</option>
+    <option value="aurora">Aurora Cyan</option>
+    <option value="emerald">Emerald Quranic</option>
+    <option value="purple">Royal Purple</option>
+    <option value="amber">Amber Manuscript</option>
+    <option value="rose">Rose Poetry</option>
+  </select>
+
+  <button class="main-btn" onclick="generate()">Buat Syair</button>
+  <button class="main-btn" onclick="clearText()">🧹 Hapus Teks</button>
+</div>
+
+<div class="card output" id="outputCard">
+  <table id="resultTable"></table>
+</div>
+
+<div class="social-container">
+  <p>Info lebih lanjut, hubungi kami:</p>
+
+  <div class="social-icons">
+    <a href="https://www.instagram.com/umarhamdan_a/" target="_blank">
+      <img src="https://res.cloudinary.com/dmecuyazc/image/upload/v1766738130/ig_nhlx8u.png" class="social-icon ig">
+    </a>
+    <a href="https://wa.me/62859106771139" target="_blank">
+      <img src="https://res.cloudinary.com/dmecuyazc/image/upload/v1766738128/wa_qpuube.png" class="social-icon wa">
+    </a>
+  </div>
+
+  <div class="support-text">
+    Berkenan mendukung kami?
+    <a href="https://www.google.com" target="_blank">Klik di sini</a>
+  </div>
+
+  <div class="copyright">
+    © 2025 Afhimna Dev. All Rights Reserved.
+  </div>
+</div>
+
+<script>
+const textarea=document.getElementById("inputText");
+const fontSelect=document.getElementById("fontSelect");
+const colorSelect=document.getElementById("colorSelect");
+const table=document.getElementById("resultTable");
+const outputCard=document.getElementById("outputCard");
+const fontSizeVal=document.getElementById("fontSizeVal");
+
+let fontSize=18;
+let hasGenerated=false;
+
+function updateFont(){
+  document.documentElement.style.setProperty("--fontSize",fontSize+"px");
+  fontSizeVal.textContent=fontSize+"px";
+}
+function fontPlus(){if(fontSize<40){fontSize++;updateFont()}}
+function fontMinus(){if(fontSize>12){fontSize--;updateFont()}}
+
+fontSelect.addEventListener("change",()=>{
+  const f=fontSelect.value;
+  textarea.style.fontFamily=f+",serif";
+  table.style.fontFamily=f+",serif";
+});
+
+colorSelect.addEventListener("change",()=>{
+  const v=colorSelect.value;
+  const root=document.documentElement;
+  const map={
+    white:["#000","#fff"],
+    aurora:["#e0faff","rgba(0,242,255,.12)"],
+    emerald:["#dcfce7","rgba(34,197,94,.12)"],
+    purple:["#f3e8ff","rgba(168,85,247,.14)"],
+    amber:["#fff7ed","rgba(251,191,36,.18)"],
+    rose:["#ffe4e6","rgba(244,63,94,.14)"],
+    default:["#e5e7eb","rgba(255,255,255,.035)"]
+  };
+  root.style.setProperty("--tableText",map[v][0]);
+  root.style.setProperty("--tableBait",map[v][1]);
+});
+function generate(){
+  const text=textarea.value.trim();
+  if(!text)return;
+
+  hasGenerated=true;
+  table.innerHTML="";
+  outputCard.classList.remove("fade");
+
+  text.split(/\n+/).forEach((line,i)=>{
+    const tr=document.createElement("tr");
+    const td=document.createElement("td");
+
+    tr.classList.add(i%2===0?"bait-start":"bait-end","wave");
+    tr.style.animationDelay=(i*40)+"ms";
+
+    const len=line.length;
+
+    /* BARIS PERTAMA SAJA */
+    if(i===0){
+      td.style.textAlign="right";
+      td.style.textAlignLast="right";
+      td.style.setProperty("--pl","22px");
+      td.style.setProperty("--pr","22px");
+    }
+    /* SELAIN BARIS PERTAMA → LOGIKA LAMA UTUH */
+    else if(i%2===0){
+      td.style.setProperty("--pr",Math.min(72,36+len*.35)+"px");
+      td.style.setProperty("--pl","22px");
+    }else{
+      td.style.setProperty("--pl",Math.min(72,36+len*.35)+"px");
+      td.style.setProperty("--pr","22px");
+    }
+
+    td.textContent=line;
+    tr.appendChild(td);
+    table.appendChild(tr);
+  });
+}
+
+function clearText(){
+  document.body.classList.add("page-reset");
+  textarea.classList.add("fade");
+  outputCard.classList.add("fade");
+
+  setTimeout(()=>{
+    textarea.value="";
+    table.innerHTML="";
+    hasGenerated=false;
+
+    fontSize=18;
+    updateFont();
+
+    fontSelect.value="Amiri";
+    textarea.style.fontFamily="Amiri,serif";
+    table.style.fontFamily="Amiri,serif";
+
+    colorSelect.value="default";
+    document.documentElement.style.setProperty("--tableText","#e5e7eb");
+    document.documentElement.style.setProperty("--tableBait","rgba(255,255,255,.035)");
+
+    void document.body.offsetHeight;
+
+    textarea.classList.remove("fade");
+    outputCard.classList.remove("fade");
+    document.body.classList.remove("page-reset");
+  },520);
+}
+
+requestAnimationFrame(()=>document.body.classList.remove("page-reset"));
+updateFont();
+</script>
+
+</body>
+</html>
