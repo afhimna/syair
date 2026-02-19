@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Generator Syair Arab • AFHIMNA</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Amiri&family=Scheherazade+New&family=Lateef&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri&family=Scheherazade+New&family=Lateef&family=Aref+Ruqaa&display=swap" rel="stylesheet">
+
 
 <style>
 :root{
@@ -225,6 +226,25 @@ tr.bait-end td{
   letter-spacing:.6px;
   color:rgba(255,255,255,.35);
 }
+.hide-on-capture{
+  visibility:hidden !important;
+}
+
+.no-animation *{
+  animation:none !important;
+  transition:none !important;
+}
+.export-btn{
+  opacity:1;
+  transform:translateY(0);
+  transition:all .45s ease;
+}
+
+.hidden-btn{
+  opacity:0;
+  transform:translateY(12px);
+  pointer-events:none;
+}
 </style>
 </head>
 
@@ -241,6 +261,7 @@ tr.bait-end td{
     <option>Amiri</option>
     <option>Scheherazade New</option>
     <option>Lateef</option>
+    <option>Aref Ruqaa</option>
   </select>
 
   <label>Ukuran Font</label>
@@ -253,6 +274,10 @@ tr.bait-end td{
   <label>Skema Warna Tabel</label>
   <select id="colorSelect">
     <option value="default">Default AFHIMNA</option>
+    <option value="goldblack">Gold on Black</option>
+    <option value="midnight">Midnight Navy</option>
+    <option value="tealglass">Teal Glass</option>
+    <option value="charcoal">Charcoal Minimal</option>
     <option value="white">White Manuscript</option>
     <option value="aurora">Aurora Cyan</option>
     <option value="emerald">Emerald Quranic</option>
@@ -263,6 +288,11 @@ tr.bait-end td{
 
   <button class="main-btn" onclick="generate()">Buat Syair</button>
   <button class="main-btn" onclick="clearText()">🧹 Hapus Teks</button>
+  <button class="main-btn export-btn hidden-btn" 
+        id="exportBtn"
+        onclick="exportImage()">
+📸 Export Gambar
+</button>
 </div>
 
 <div class="card output" id="outputCard">
@@ -288,7 +318,10 @@ tr.bait-end td{
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <script>
+const exportBtn = document.getElementById("exportBtn");
 const textarea=document.getElementById("inputText");
 const fontSelect=document.getElementById("fontSelect");
 const colorSelect=document.getElementById("colorSelect");
@@ -303,7 +336,7 @@ function updateFont(){
   document.documentElement.style.setProperty("--fontSize",fontSize+"px");
   fontSizeVal.textContent=fontSize+"px";
 }
-function fontPlus(){if(fontSize<40){fontSize++;updateFont()}}
+function fontPlus(){if(fontSize<60){fontSize++;updateFont()}}
 function fontMinus(){if(fontSize>12){fontSize--;updateFont()}}
 
 fontSelect.addEventListener("change",()=>{
@@ -316,14 +349,18 @@ colorSelect.addEventListener("change",()=>{
   const v=colorSelect.value;
   const root=document.documentElement;
   const map={
-    white:["#000","#fff"],
-    aurora:["#e0faff","rgba(0,242,255,.12)"],
-    emerald:["#dcfce7","rgba(34,197,94,.12)"],
-    purple:["#f3e8ff","rgba(168,85,247,.14)"],
-    amber:["#fff7ed","rgba(251,191,36,.18)"],
-    rose:["#ffe4e6","rgba(244,63,94,.14)"],
-    default:["#e5e7eb","rgba(255,255,255,.035)"]
-  };
+  goldblack:["#FFD700","rgba(0,0,0,.85)"],
+  midnight:["#E2E8F0","rgba(15,23,42,.85)"], 
+  tealglass:["#99F6E4","rgba(13,148,136,.18)"], 
+  charcoal:["#F1F5F9","rgba(30,41,59,.75)"],  
+  white:["#000","#fff"],
+  aurora:["#e0faff","rgba(0,242,255,.12)"],
+  emerald:["#dcfce7","rgba(34,197,94,.12)"],
+  purple:["#f3e8ff","rgba(168,85,247,.14)"],
+  amber:["#fff7ed","rgba(251,191,36,.18)"],
+  rose:["#ffe4e6","rgba(244,63,94,.14)"],
+  default:["#e5e7eb","rgba(255,255,255,.035)"]
+};
   root.style.setProperty("--tableText",map[v][0]);
   root.style.setProperty("--tableBait",map[v][1]);
 });
@@ -332,6 +369,7 @@ function generate(){
   if(!text)return;
 
   hasGenerated=true;
+  exportBtn.classList.remove("hidden-btn");
   table.innerHTML="";
   outputCard.classList.remove("fade");
 
@@ -375,8 +413,9 @@ function clearText(){
     textarea.value="";
     table.innerHTML="";
     hasGenerated=false;
-
-    fontSize=18;
+	exportBtn.classList.add("hidden-btn");
+    
+	fontSize=20;
     updateFont();
 
     fontSelect.value="Amiri";
@@ -397,6 +436,47 @@ function clearText(){
 
 requestAnimationFrame(()=>document.body.classList.remove("page-reset"));
 updateFont();
+async function exportImage(){
+  if(!table.innerHTML.trim()){
+    alert("Belum ada syair untuk diexport.");
+    return;
+  }
+
+  const buttons=document.querySelectorAll(".main-btn");
+  buttons.forEach(btn=>btn.classList.add("hide-on-capture"));
+
+  document.body.classList.add("no-animation");
+
+  await document.fonts.ready;
+  await new Promise(r=>setTimeout(r,400));
+
+  const canvas = await html2canvas(table,{
+  scale:3,
+  useCORS:true,
+  backgroundColor: getComputedStyle(document.body).backgroundColor,
+  width: table.scrollWidth,
+  height: table.scrollHeight,
+  scrollX: 0,
+  scrollY: 0
+});
+
+  const margin=80;
+  const finalCanvas=document.createElement("canvas");
+  const ctx=finalCanvas.getContext("2d");
+
+  finalCanvas.width=canvas.width + margin*2;
+  finalCanvas.height=canvas.height + margin*2;
+
+  ctx.drawImage(canvas,margin,margin);
+
+  const link=document.createElement("a");
+  link.download="syair-afhimna.png";
+  link.href=finalCanvas.toDataURL("image/png");
+  link.click();
+
+  buttons.forEach(btn=>btn.classList.remove("hide-on-capture"));
+  document.body.classList.remove("no-animation");
+}
 </script>
 
 </body>
