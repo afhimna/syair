@@ -445,17 +445,37 @@ async function exportImage(){
   await document.fonts.ready;
   await new Promise(r=>setTimeout(r,400));
 
-  // Buat wrapper khusus export
+  // Wrapper bersih
   const wrapper = document.createElement("div");
   wrapper.style.display = "inline-block";
-  wrapper.style.background = "transparent";
   wrapper.style.padding = "0";
   wrapper.style.margin = "0";
+  wrapper.style.background = "transparent";
 
   // Clone tabel
   const clone = table.cloneNode(true);
   clone.style.margin = "0";
-  clone.style.border = "none";
+  clone.style.borderCollapse = "collapse";
+
+  // COPY COMPUTED STYLE SETIAP TD
+  const originalTds = table.querySelectorAll("td");
+  const cloneTds = clone.querySelectorAll("td");
+
+  originalTds.forEach((td,i)=>{
+    const cs = getComputedStyle(td);
+    cloneTds[i].style.paddingRight = cs.paddingRight;
+    cloneTds[i].style.paddingLeft = cs.paddingLeft;
+    cloneTds[i].style.textAlign = cs.textAlign;
+    cloneTds[i].style.textAlignLast = cs.textAlignLast;
+    cloneTds[i].style.backgroundColor = cs.backgroundColor;
+    cloneTds[i].style.color = cs.color;
+  });
+
+  // Matikan animasi
+  clone.querySelectorAll("*").forEach(el=>{
+    el.style.animation = "none";
+    el.style.transition = "none";
+  });
 
   wrapper.appendChild(clone);
   document.body.appendChild(wrapper);
