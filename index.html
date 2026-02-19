@@ -442,40 +442,36 @@ async function exportImage(){
     return;
   }
 
-  const buttons=document.querySelectorAll(".main-btn");
-  buttons.forEach(btn=>btn.classList.add("hide-on-capture"));
-
-  document.body.classList.add("no-animation");
-
   await document.fonts.ready;
   await new Promise(r=>setTimeout(r,400));
 
-  const canvas = await html2canvas(table,{
-  scale:3,
-  useCORS:true,
-  backgroundColor: getComputedStyle(document.body).backgroundColor,
-  width: table.scrollWidth,
-  height: table.scrollHeight,
-  scrollX: 0,
-  scrollY: 0
-});
+  // Buat wrapper khusus export
+  const wrapper = document.createElement("div");
+  wrapper.style.display = "inline-block";
+  wrapper.style.background = "transparent";
+  wrapper.style.padding = "0";
+  wrapper.style.margin = "0";
 
-  const margin=80;
-  const finalCanvas=document.createElement("canvas");
-  const ctx=finalCanvas.getContext("2d");
+  // Clone tabel
+  const clone = table.cloneNode(true);
+  clone.style.margin = "0";
+  clone.style.border = "none";
 
-  finalCanvas.width=canvas.width + margin*2;
-  finalCanvas.height=canvas.height + margin*2;
+  wrapper.appendChild(clone);
+  document.body.appendChild(wrapper);
 
-  ctx.drawImage(canvas,margin,margin);
+  const canvas = await html2canvas(wrapper,{
+    scale:3,
+    useCORS:true,
+    backgroundColor:null
+  });
 
   const link=document.createElement("a");
   link.download="syair-afhimna.png";
-  link.href=finalCanvas.toDataURL("image/png");
+  link.href=canvas.toDataURL("image/png");
   link.click();
 
-  buttons.forEach(btn=>btn.classList.remove("hide-on-capture"));
-  document.body.classList.remove("no-animation");
+  document.body.removeChild(wrapper);
 }
 </script>
 
